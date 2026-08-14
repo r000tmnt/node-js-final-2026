@@ -4,6 +4,7 @@ const { DataSource } = require('typeorm')
 const Coach = require('../entities/Coach')
 const Skill = require('../entities/Skill')
 const User = require('../entities/User')
+const CreditPackage = require('../entities/CreditPackage')
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -18,7 +19,8 @@ const dataSource = new DataSource({
     // 今天的 entities 會一個一個長出來
     Coach,
     Skill,
-    User
+    User,
+    CreditPackage
   ],
 })
 
