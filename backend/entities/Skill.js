@@ -13,6 +13,10 @@ module.exports = new EntitySchema({
             type: 'varchar',
             length: 20,
             nullable: false,
+        },
+        created_at: {
+            type: 'timestamp',
+            createDate: true
         }
     }
 })
