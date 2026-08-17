@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const { dataSource } = require('./db/data-source');
 const appError = require('./utils/appError');
-const skillRouter = require('./router/skill')
-const creditPackageRouter = require('./router/creditPackage')
+
+const skillRouter = require('./router/skill');
+const creditPackageRouter = require('./router/creditPackage');
+const userRouter = require('./router/user')
 
 const app = express();
 app.use(cors());
@@ -11,6 +13,7 @@ app.use(express.json());
 
 app.use('/api/coaches/skill', skillRouter)
 app.use('/api/credit-package', creditPackageRouter)
+app.use('/api/users', userRouter)
 
 
 app.get("/healthcheck", async (req, res) => {
