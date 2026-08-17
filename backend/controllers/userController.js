@@ -15,7 +15,7 @@ const userController = {
             }
         }
 
-        if(!stringChecked){
+        if(!stringChecked || !payload.email){
             return appError(400, '欄位未填寫正確')
         }
 
@@ -107,11 +107,100 @@ const userController = {
         }
     },
 
-    getUser: async(user_id) => {},
-    
-    updateUser: async(payload) => {},
+    getUser: async(user) => {
+        if(!user){
+            return appError(401, "無效的 token")
+        }
 
-    changePwd: async(payload) => {}
+        return {
+            status: 'success',
+            data: {
+                user: {
+                    name: user.name,
+                    email: user.email
+                }
+            }
+        }
+    },
+    
+    updateUser: async(payload) => {
+        if(!payload.name || !payload.name.length){
+            return appError(400, '欄位未填寫正確')
+        }
+        
+        if(payload.user.name === payload.name){
+            return appError(400, '使用者名稱未變更')
+        }
+
+        const result = await dataSource.getRepository('User').update(
+            { id: payload.user.id }, { name: payload.name }
+        )
+
+        return {
+            status: 'success',
+            data: {
+                user: {
+                    name: payload.name
+                }
+            }
+        }
+    },
+
+    changePwd: async(payload) => {
+        // console.log(payload)
+        let stringChecked = true
+        let pwdChecked = true
+
+        const { user, password, new_password, confirm_new_password } = payload
+
+        for(let i=0, s=[password, new_password, confirm_new_password]; i < s.length; i++){
+            console.log('loop', s[i])
+            if(!isValidString(s[i])){
+                // console.log('isValidString param', param)
+                stringChecked = false
+                break
+            }
+
+            if(!isValidPassword(s[i])){
+                // console.log('isValidPassword param', param)
+                pwdChecked = false
+                break
+            }
+        }
+
+        if(!stringChecked){
+            return appError(400, '欄位未填寫正確')
+        }
+
+        if(!pwdChecked){
+            return appError(400, '密碼不符合規則，需要包含英文數字大小寫，最短8個字，最長16個字')
+        }
+
+        if(password === new_password){
+            return appError(400, '新密碼不能與舊密碼相同')
+        }
+
+        if(new_password !== confirm_new_password){
+            return appError(400, '新密碼與驗證新密碼不一致')
+        }
+
+        const users = dataSource.getRepository('User')
+        const theUser = await users.findOneBy({ id: user.id })
+        const isMatched = await bcrypt.compare(password, theUser.password)
+
+        if(!isMatched){
+            return appError(400, '密碼輸入錯誤')
+        }
+
+        const newHash = await bcrypt.hash(new_password, 10)
+
+        const result = await users.update({ id: user.id }, { password: newHash })
+
+        return {
+            status: 'success',
+            data: null
+        }
+    }
 }
 
 module.exports = userController
