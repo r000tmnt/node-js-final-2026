@@ -67,6 +67,19 @@ const coachController = {
                 }
             }
         }    
+    },
+
+    getCoach: async(user_id) => {
+        console.log('user_id', user_id)
+        const coach = await dataSource.getRepository('Coach').findOneBy({ user_id })
+
+        return {
+            status: 'success',
+            data: {
+                ...coach,
+                skill_ids: coach.skill_ids?? []
+            }
+        }
     }
 }
 
