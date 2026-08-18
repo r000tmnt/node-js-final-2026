@@ -80,7 +80,63 @@ const coachController = {
                 skill_ids: coach.skill_ids?? []
             }
         }
-    }
+    },
+
+    updateCoach: async(payload) => {
+        const {
+            user_id, 
+            experience_years, 
+            description, 
+            profile_image_url,
+            skill_ids
+        } = payload
+
+        // check payload properties
+        if(
+            !isValidString(description) || 
+            experience_years <= 0 || 
+            !profile_image_url.includes('https://') ||
+            !skill_ids.length
+        ){
+            return appError(400, '欄位未填寫正確')
+        }        
+
+        const skills = dataSource.getRepository('Skill')
+        let skillChecked = true
+
+        for(let i=0; i < skill_ids.length; i++){
+            const skill = await skills.findOneBy({ id: skill_ids[i] })
+            if(!skill){
+                skillChecked = false                
+                break
+            }
+        }
+
+        if(!skillChecked){
+            return appError(400, '欄位未填寫正確')
+        }
+
+        const coaches = dataSource.getRepository('Coach')
+        const theCoach = await coaches.findOneBy({ user_id }) 
+        
+        const result = await coaches.update(
+            { user_id },
+            {
+                experience_years, 
+                description, 
+                profile_image_url,
+                skill_ids            
+            }
+        )
+
+        // Get updated result
+        const updated = await dataSource.getRepository('Coach').findOneBy({ user_id })
+
+        return {
+            status: 'success',
+            data: updated
+        }
+    },
 }
 
 module.exports = coachController

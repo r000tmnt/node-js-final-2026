@@ -46,9 +46,24 @@ router.get('/', isAuth, isCoach, async(req, res, next) => {
     }
 })
 
-// router.put('/', isCoach, async(req, res, next) => {
+router.put('/', isAuth, isCoach, async(req, res, next) => {
+    try {
+        const { user } = req
+        
+        const result = await coachController.updateCoach({ user_id: user.id, ...req.body })
 
-// })
+        if(result.status !== 'success'){
+            next(result)
+            return
+        }
+
+        res.status(200).json(result)  
+    } catch (error) {
+        console.log(error)
+        next(appError(503, error))
+        return 
+    }
+})
 
 // router.get('/courses', isCoach, async(req, res, next) => {
 
