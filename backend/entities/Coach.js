@@ -14,7 +14,7 @@ module.exports = new EntitySchema({
             nullable: false,
             unique: true,
         },
-        experience_year: {
+        experience_years: {
             type: 'int',
             nullable: false,
             default: 0,
@@ -27,6 +27,12 @@ module.exports = new EntitySchema({
             type: 'varchar',
             length: 2048,
             nullable: true,
+        },
+        skill_ids: {
+            type: 'uuid',
+            array: true,
+            nullable: true,
+            default: []
         },
         created_at: {
             type: 'timestamp',
