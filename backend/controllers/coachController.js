@@ -27,7 +27,7 @@ const coachController = {
         if(
             !isValidString(description) || 
             experience_years <= 0 || 
-            !profile_image_url.includes('https://')
+            !profile_image_url.startsWith('https://')
         ){
             return appError(400, '欄位未填寫正確')
         }
@@ -169,6 +169,57 @@ const coachController = {
         return {
             status: 'success',
             data: result
+        }
+    },
+
+    addCourse: async(payload) => {
+    //     {
+    //     "skill_id": "1c8da31a-5fb2-4f2b-9d3e-6a7b8c9d0e1f",
+    //     "name": "重訓基礎入門",
+    //     "description": "從零開始的重訓課，教你正確使用器材與姿勢。",
+    //     "start_at": "2026-08-20T10:00:00Z",
+    //     "end_at": "2026-08-20T12:00:00Z",
+    //     "max_participants": 10,
+    //     "meeting_url": "https://meet.example.com/abc-defg-hij"
+    //     }
+        console.log('payload', payload)
+
+        const mustHave = ['skill_id', 'name', 'description', 'start_at', 'end_at']
+
+        let paramMissing = false
+
+        if(!payload['meeting_url'].startsWith('https')){
+            return appError(400, '欄位未填寫正確')
+        }
+
+        if(payload['max_participants'] <= 0){
+            return appError(400, '欄位未填寫正確')
+        }        
+
+        for(let i=0; i < mustHave.length; i++){
+            if(mustHave[i] in payload && 
+               isValidString(payload[mustHave[i]])
+            ){
+                continue
+            }else{
+                paramMissing = true
+                break;
+            }
+        }
+
+        if(paramMissing){
+            return appError(400, '欄位未填寫正確')
+        }        
+
+        const newCourse = await dataSource.getRepository('Course').save({
+            ...payload
+        })
+
+        return {
+            status: 'success',
+            data: {
+                course: newCourse
+            }
         }
     }
 }
