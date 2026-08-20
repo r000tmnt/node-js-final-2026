@@ -137,6 +137,40 @@ const coachController = {
             data: updated
         }
     },
+
+    getCourses: async(user_id) => {
+        // const result = await dataSource.getRepository('Course').findBy({ user_id })
+
+        const result = await dataSource.getRepository('Course').find({ 
+            where: {
+                user: { id: user_id }
+            }
+         })
+
+        const now = Date.now()
+
+        result.forEach(course => {
+            const start = new Date(course.start_at).getMilliseconds()
+            const end = new Date(course.end_at).getMilliseconds()
+
+            if(now > end){
+                course['status'] = '已結束'
+            }
+
+            if(now < end && now > start){
+                course['status'] = '進行中'
+            }
+
+            if(now < start){
+                course['status'] = '尚未開始'
+            }
+        })
+
+        return {
+            status: 'success',
+            data: result
+        }
+    }
 }
 
 module.exports = coachController

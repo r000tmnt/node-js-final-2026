@@ -65,9 +65,24 @@ router.put('/', isAuth, isCoach, async(req, res, next) => {
     }
 })
 
-// router.get('/courses', isCoach, async(req, res, next) => {
+router.get('/courses', isAuth, isCoach, async(req, res, next) => {
+    try {
+        const { user } = req
+        
+        const result = await coachController.getCourses(user.id)
 
-// })
+        if(result.status !== 'success'){
+            next(result)
+            return
+        }
+
+        res.status(200).json(result)  
+    } catch (error) {
+        console.log(error)
+        next(appError(503, error))
+        return 
+    }
+})
 
 // router.post('/courses', isCoach, async(req, res, next) => {
 
