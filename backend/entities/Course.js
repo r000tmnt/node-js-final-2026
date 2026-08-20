@@ -43,5 +43,19 @@ module.exports = new EntitySchema({
             type: 'timestamp',
             updateDate: true,
         }        
+    },
+    relations: {
+        user: {
+            target: 'User',
+            type: 'one-to-one',
+            joinColumn: { name: 'user_id' },
+            nullable: false
+        },
+        skill: {
+            target: 'Skill',
+            type: 'one-to-one',
+            joinColumn: { name: 'skill_id' },
+            nullable: false
+        }
     }
 })
