@@ -9,6 +9,16 @@ module.exports = new EntitySchema({
             type: 'uuid',
             generated: 'uuid',
         },
+        user_id: {
+            type: 'uuid',
+            nullable: false,
+            unique: false
+        },
+        skill_id: {
+            type: 'uuid',
+            nullable: false,
+            unique: false
+        },        
         name: {
             type: 'varchar',
             length: 50,
@@ -33,7 +43,8 @@ module.exports = new EntitySchema({
         },
         participants: {
             type: 'int',
-            nullable: false
+            nullable: true,
+            default: 0
         },
         created_at: {
             type: 'timestamp',
@@ -47,15 +58,13 @@ module.exports = new EntitySchema({
     relations: {
         user: {
             target: 'User',
-            type: 'one-to-one',
-            joinColumn: { name: 'user_id' },
-            nullable: false
+            type: 'many-to-one',
+            joinColumn: { name: 'user_id' }
         },
         skill: {
             target: 'Skill',
-            type: 'one-to-one',
-            joinColumn: { name: 'skill_id' },
-            nullable: false
+            type: 'many-to-one',
+            joinColumn: { name: 'skill_id' }
         }
     }
 })
