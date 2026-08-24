@@ -53,7 +53,7 @@ const publicController = {
         }
     },
 
-    getCourses: async(coach_id) => {
+    getCoachCourses: async(coach_id) => {
         if(!isValidString(coach_id)){
             return appError(400, '欄位未填寫正確')
         }
@@ -83,6 +83,27 @@ const publicController = {
             data: courses
         }
     },
+
+    getAllCourses: async() => {
+        const now = Date.now()
+
+        const courses = await dataSource.getRepository('Course').
+        createQueryBuilder('course').
+        where('course.end_at > :now', { now: new Date(now).toISOString() }).
+        andWhere('course.start_at <= :now', { now: new Date(now).toISOString() }).
+        getMany()
+
+        courses.forEach(async(course) => {
+            course['coach_name'] = coach.name
+            const skill = await dataSource.getRepository('Skill').findOneBy({ id: course.skill_id })
+            if(skill) course['skill_name'] = skill.name
+        });
+
+        return {
+            status: 'success',
+            data: courses
+        }        
+    }
 }
 
 module.exports = publicController
