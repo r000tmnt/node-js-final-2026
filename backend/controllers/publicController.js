@@ -11,15 +11,30 @@ const publicController = {
             return appError(400, '欄位未填寫正確')
         }
 
-        const result = await dataSource.getRepository('Course').
+        const result = await dataSource.getRepository('Coach').
         findAndCount({
             skip: (page - 1) * per,
             take: per
         }) 
 
+        const returnData = []
+
+        for(let i=0; i < result[0].length; i++){
+            const coach = result[0][i]
+            const user = await dataSource.getRepository('User').findOneBy({ id: coach.user_id })
+
+            returnData.push({
+                id: coach.id,
+                user_id: coach.user_id,
+                name: user.name
+            })
+        }
+
+        // console.log('returnData', returnData)
+
         return {
             status: 'success',
-            data: result[0]
+            data: returnData
         }
     },
     
