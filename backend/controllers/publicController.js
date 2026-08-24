@@ -62,9 +62,17 @@ const publicController = {
 
         delete coach.skill_ids
 
+        const user = await dataSource.getRepository('User').findOneBy({ id: coach.user_id })
+
         return {
             status: 'success',
-            data: coach
+            data: {
+                user: {
+                    name: user.name,
+                    role: user.role
+                },
+                coach
+            }
         }
     },
 
