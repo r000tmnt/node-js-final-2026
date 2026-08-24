@@ -64,6 +64,25 @@ router.get('/courses/:course_id', isAuth, isCoach, async(req, res, next) => {
     }
 })
 
+router.put('/courses/:course_id', isAuth, async(req, res, next) => {
+    try {
+        const { user } = req
+        const { course_id } = req.params
+        
+        const result = await coachController.updateCourse({user_id: user.id, course_id, ...req.body})    
+        
+        if(result.status !== 'success'){
+            next(result)
+            return
+        }
+
+        res.status(200).json(result)            
+    } catch (error) {
+        next(appError(503, error))
+        return          
+    }
+})
+
 
 router.post('/:user_id', async(req, res, next) => {
     try {

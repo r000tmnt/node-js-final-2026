@@ -266,6 +266,75 @@ const coachController = {
             status: 'success',
             data: result
         }
+    },
+
+    updateCourse: async(payload) => {
+        const { user_id, course_id } = payload
+
+        const courses = dataSource.getRepository('Course')
+
+        const theCourse = await courses.findOneBy({ id: course_id, user_id })
+
+        if(!theCourse){
+            return appError(400, '課程不存在')
+        }
+
+    //    {
+    //     "skill_id": "1c8da31a-5fb2-4f2b-9d3e-6a7b8c9d0e1f",
+    //     "name": "重訓基礎入門（改版）",
+    //     "description": "課綱更新：加入自由重量的安全教學。",
+    //     "start_at": "2026-08-21T10:00:00Z",
+    //     "end_at": "2026-08-21T12:00:00Z",
+    //     "max_participants": 12,
+    //     "meeting_url": "https://meet.example.com/abc-defg-hij"
+    //     } 
+
+        const mustHave = ['skill_id', 'name', 'description', 'start_at', 'end_at']
+
+        let paramMissing = false    
+
+        if(!payload['meeting_url'].startsWith('https')){
+            return appError(400, '欄位未填寫正確')
+        }
+
+        if(payload['max_participants'] <= 0){
+            return appError(400, '欄位未填寫正確')
+        }             
+
+        for(let i=0; i < mustHave.length; i++){
+            if(mustHave[i] in payload && 
+               isValidString(payload[mustHave[i]])
+            ){
+                continue
+            }else{
+                paramMissing = true
+                break;
+            }
+        }
+
+        if(paramMissing){
+            return appError(400, '欄位未填寫正確')
+        }        
+
+        await courses.update({ id: course_id }, { 
+            skill_id: payload.skill_id,
+            name: payload.name,
+            description: payload.description,
+            start_at: payload.start_at,
+            end_at: payload.end_at,
+            max_participants: payload.max_participants,
+            meeting_url: payload.meeting_url
+         })
+
+        // Get updated result
+        const updated = await courses.findOneBy({ id: course_id })
+
+        return {
+            status: 'success',
+            data: {
+                course: updated
+            }
+        }        
     }
 }
 
