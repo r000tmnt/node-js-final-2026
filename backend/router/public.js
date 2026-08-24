@@ -38,7 +38,22 @@ router.get('/coaches/:coach_id', async(req, res, next) => {
     }
 })
 
-// router.get('/coaches/:coach_id/courses', async(req, res, next) => {})
+router.get('/coaches/:coach_id/courses', async(req, res, next) => {
+    try {
+        const { coach_id } = req.params
+        const result = await publicController.getCourses(coach_id)
+        
+        if(result.status !== 'success'){
+            next(result)
+            return
+        }
+
+        res.status(200).json(result)          
+    } catch (error) {
+        next(appError(503, error))
+        return         
+    }    
+})
 
 // router.get('/courses', async(req, res, next) => {})
 

@@ -52,6 +52,37 @@ const publicController = {
             data: coach
         }
     },
+
+    getCourses: async(coach_id) => {
+        if(!isValidString(coach_id)){
+            return appError(400, '欄位未填寫正確')
+        }
+
+        const coach = await dataSource.getRepository('Coach').findOneBy({ id: coach_id })
+
+        if(!coach){
+            return appError(400, '找不到該教練')
+        }
+
+        const now = Date.now()
+
+        const courses = await dataSource.getRepository('Course').
+        createQueryBuilder('course').
+        where('course.end_at > :now', { now: new Date(now).toISOString() }).
+        andWhere('course.user_id = :user_id', { user_id: coach.user_id }).
+        getMany()
+
+        courses.forEach(async(course) => {
+            course['coach_name'] = coach.name
+            const skill = await dataSource.getRepository('Skill').findOneBy({ id: course.skill_id })
+            if(skill) course['skill_name'] = skill.name
+        });
+
+        return {
+            status: 'success',
+            data: courses
+        }
+    },
 }
 
 module.exports = publicController
