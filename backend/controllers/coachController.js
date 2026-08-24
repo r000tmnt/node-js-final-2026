@@ -221,6 +221,51 @@ const coachController = {
                 course: newCourse
             }
         }
+    },
+
+    findCourse: async(payload) => {
+        const { user_id, course_id } = payload
+
+        const result = await dataSource.getRepository('Course').
+        // findOne({
+        //     where: {
+        //         id: course_id,
+        //         user_id,
+        //     },
+        //     relations: {
+        //         skill: true
+        //     },
+        //     select: {
+        //         skill: {
+        //             name: true
+        //         }                
+        //     }
+        // })
+        createQueryBuilder('course').
+        innerJoin('course.skill', 'skill').
+        where('course.id = :course_id', { course_id }).
+        andWhere('course.user_id = :user_id', { user_id }).
+        select([
+            'course.id AS id',
+            'course.name AS name',
+            'course.description AS description',
+            'course.start_at AS start_at',
+            'course.end_at AS end_at',
+            'course.max_participants AS max_participants',
+            'skill.name AS skill_name',
+            'course.skill_id AS skill_id',
+            'course.meeting_url AS meeting_url'
+        ]).
+        getRawOne();
+
+        if(!result){
+            return appError(400, '課程不存在')
+        }
+
+        return {
+            status: 'success',
+            data: result
+        }
     }
 }
 
