@@ -26,8 +26,14 @@ const coachController = {
         // check payload properties
         if(
             !isValidString(description) || 
-            experience_years <= 0 || 
-            !profile_image_url.startsWith('https://')
+            experience_years <= 0
+        ){
+            return appError(400, '欄位未填寫正確')
+        }
+
+        if(profile_image_url !== undefined && 
+           profile_image_url.length && 
+           !profile_image_url.startsWith('https://')
         ){
             return appError(400, '欄位未填寫正確')
         }
