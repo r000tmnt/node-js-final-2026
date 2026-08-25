@@ -50,8 +50,8 @@ app.use((err, req, res, next) => {
 }) 
 
 dataSource.initialize().then(() => {
-    app.listen(process.env.port, () => {
-        console.log(`Server is running on port ${process.env.port}`);
+    app.listen(process.env.PORT, () => {
+        console.log(`Server is running on port ${process.env.PORT}`);
     })
 }).catch((error) => {
     console.error('Error during Data Source initialization:', error);
