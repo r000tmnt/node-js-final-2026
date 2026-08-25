@@ -346,8 +346,8 @@ const coachController = {
     getRevenue: async(payload) => {
         const { user_id, month } = payload
 
-        console.log(user_id)
-        console.log(month)
+        // console.log(user_id)
+        // console.log(month)
 
         if(!isValidString(month) || 
            typeof month === 'number' ||
@@ -360,33 +360,19 @@ const coachController = {
 
         const year = new Date(now).getFullYear()
 
-        let end = 30
+        const mm = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+
+        let monthIndex = mm.findIndex(m => m === month) + 1
 
         //  january, february, march, april, may, june, july, august, september, october, november, december
-
-        switch(month){
-            case 'january':
-            case 'march':
-            case 'may':
-            case 'july':
-            case 'august':
-            case 'october':
-            case 'december':
-                end = 31
-            break;
-            case 'february':
-                if((year%4) === 0) end = 29
-                end = 28
-            break;
-        }
 
         const bookingOfTheMonth = await dataSource.getRepository('CourseBooking').
         createQueryBuilder('cb').
         innerJoin('cb.course', 'course').
-        where('cb.created_at >= :start', { start: new Date(`${month} 1, ${year}`).toISOString() }).
-        andWhere('cb.created_at <= :end', { end: new Date(`${month} ${end}, ${year}`).toISOString() }).
-        andWhere('cb.cancelled_at = NULL').
-        andWhere('course.user_id = :user_id', { user_id }).
+        where('course.user_id = :user_id', { user_id }).
+        andWhere('EXTRACT(MONTH FROM cb.created_at) = :monthIndex', { monthIndex }).
+        andWhere('EXTRACT(YEAR FROM cb.created_at) = :year', { year }).
+        andWhere('cb.cancelled_at IS NULL').
         getMany()
 
         console.log('bookingOfTheMonth', bookingOfTheMonth)
@@ -396,17 +382,19 @@ const coachController = {
         createQueryBuilder('cp').
         getMany()
 
-        console.log('packages', packages.length)
+        // console.log('packages', packages.length)
 
         const totalPrice = packages.reduce((pre, cur) => pre + cur.price, 0)
+        const totalCredit = packages.reduce((pre, cur) => pre + cur.credit_amount, 0)
 
         console.log('totalPrice', totalPrice)
+        console.log('totalCredit', totalCredit)
 
-        const avgPrice = totalPrice / packages.length
+        const avgPrice = totalPrice / totalCredit
 
-        console.log('avgPrice', avgPrice)
+        // console.log('avgPrice', avgPrice)
 
-        const revenue = Math.floor(bookingOfTheMonth * avgPrice)
+        const revenue = Math.floor(bookingOfTheMonth.length * avgPrice)
 
         const participants = []
 
@@ -418,6 +406,10 @@ const coachController = {
                 participants.push(user)
             }
         }
+
+        console.log('revenue', revenue)
+        console.log('participants', participants.length)
+        console.log('course_count', bookingOfTheMonth.length)
 
         return {
             status: 'success',
