@@ -18,15 +18,6 @@ module.exports = new EntitySchema({
             type: 'uuid',
             unique: false,
             nullable: false
-        },        
-        name: {
-            type: 'varchar',
-            length: 50,
-            nullable: false
-        },
-        credit_amount: {
-            type: 'int',
-            nullable: false
         },
         price_paid: {
             type: 'int',
