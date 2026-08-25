@@ -48,7 +48,29 @@ const bookingController = {
             status: 'success',
             data: null
         }
-    }
+    },
+     cancel: async({ user_id, course_id }) => {
+        const courseBooking = await dataSource.getRepository('CourseBooking')
+        
+        const booked = await courseBooking.findOneBy({ user_id, course_id })
+
+        if(!booked){
+            return appError(400, 'ID錯誤')
+        }
+
+        if(booked.cancelled_at !== null){
+            return appError(400, 'ID錯誤')
+        }
+
+        const now = Date.now()
+        
+        const update = courseBooking.update({ user_id, course_id }, { cancelled_at: new Date(now).toISOString() })
+
+        return {
+            status: 'success',
+            data: null
+        }
+     }
 }
 
 module.exports = bookingController
