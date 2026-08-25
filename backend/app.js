@@ -17,7 +17,6 @@ app.use('/api/coaches/skill', skillRouter)
 app.use('/api/credit-package', creditPackageRouter)
 app.use('/api/users', userRouter)
 app.use('/api/admin/coaches', courseRouter)
-// 購買
 // 訪客使用
 app.use('/api', publicController)
 
