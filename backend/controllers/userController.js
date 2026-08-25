@@ -200,6 +200,25 @@ const userController = {
             status: 'success',
             data: null
         }
+    },
+
+    getCreditPackage: async(user_id) => {
+        const packages = await dataSource.getRepository('CreditPurchased').
+        createQueryBuilder('cp').
+        innerJoin('cp.creditPackage', 'creditPackage').
+        where('cp.user_id = :user_id', { user_id }).
+        select([
+            'creditPackage.name AS name',
+            'creditPackage.credit_amount AS purchase_credits',
+            'cp.price_paid AS price_paid',
+            'cp.purchase_at AS purchase_at'
+        ]).
+        getRawMany()
+
+        return {
+            status: 'success',
+            data: packages
+        }
     }
 }
 
