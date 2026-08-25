@@ -7,7 +7,8 @@ const skillRouter = require('./router/skill');
 const creditPackageRouter = require('./router/creditPackage');
 const userRouter = require('./router/user')
 const courseRouter = require('./router/coach')
-const publicController = require('./router/public')
+const publicRouter = require('./router/public')
+const bookingRouter = require('./router/booking')
 
 const app = express();
 app.use(cors());
@@ -17,8 +18,9 @@ app.use('/api/coaches/skill', skillRouter)
 app.use('/api/credit-package', creditPackageRouter)
 app.use('/api/users', userRouter)
 app.use('/api/admin/coaches', courseRouter)
+app.use('/api/courses', bookingRouter)
 // 訪客使用
-app.use('/api', publicController)
+app.use('/api', publicRouter)
 
 
 app.get("/healthcheck", async (req, res) => {
