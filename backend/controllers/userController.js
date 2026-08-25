@@ -219,6 +219,50 @@ const userController = {
             status: 'success',
             data: packages
         }
+    },
+
+    getCourses: async(user_id) => {
+        const total = await dataSource.getRepository('CreditPurchased').
+        createQueryBuilder('cp').
+        innerJoin('cp.creditPackage', 'creditPackage').
+        where('cp.user_id = :user_id', { user_id }).
+        select([
+            'creditPackage.credit_amount AS credit_amount'
+        ]).
+        getRawMany()
+
+        console.log('total', total)
+
+        const totalCredit = total.reduce((pre, cur) => {
+            pre + cur.credit_amount
+        }, 0)
+
+        const course_booking = await dataSource.getRepository('CourseBooking').
+        createQueryBuilder('cb').
+        innerJoin('cb.course', 'course').
+        innerJoin('course.user', 'user').
+        where('cb.user_id = :user_id', { user_id }).
+        select([
+            'course.id AS course_id',
+            'course.name AS name',
+            'course.start_at AS start_at',
+            'course.end_at AS end_at',
+            'course.meeting_url AS meeting_url',
+            'user.name AS coach_name',
+            'cb.cancelled_at AS cancelled_at'
+        ]).
+        getRawMany()
+
+        const credit_usage = course_booking.filter(cb => !cb.cancelled_at).length
+
+        const credit_remain = totalCredit - credit_usage
+
+        return {
+            status: 'success',
+            credit_remain,
+            credit_usage,
+            course_booking
+        }
     }
 }
 

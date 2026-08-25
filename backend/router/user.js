@@ -104,8 +104,19 @@ router.get('/credit-package', isAuth, async(req, res, next) => {
     }
 })
 
-// router.get('/courses', isAuth, async(req, res, next) => {
+router.get('/courses', isAuth, async(req, res, next) => {
+    try {
+        const result = await userController.getCourses(req.user.id)
 
-// })
+        if(result.status !== 'success'){
+            next(result)
+            return   
+        }
+
+        res.status(200).json(result)            
+    } catch (error) {
+        next(appError(503, error))        
+    }
+})
 
 module.exports = router
