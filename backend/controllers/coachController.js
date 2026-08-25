@@ -341,6 +341,94 @@ const coachController = {
                 course: updated
             }
         }        
+    },
+
+    getRevenue: async(payload) => {
+        const { user_id, month } = payload
+
+        console.log(user_id)
+        console.log(month)
+
+        if(!isValidString(month) || 
+           typeof month === 'number' ||
+           month.includes('-')
+        ){
+            return appError(400, '欄位未填寫正確')
+        }
+
+        const now = Date.now()
+
+        const year = new Date(now).getFullYear()
+
+        let end = 30
+
+        //  january, february, march, april, may, june, july, august, september, october, november, december
+
+        switch(month){
+            case 'january':
+            case 'march':
+            case 'may':
+            case 'july':
+            case 'august':
+            case 'october':
+            case 'december':
+                end = 31
+            break;
+            case 'february':
+                if((year%4) === 0) end = 29
+                end = 28
+            break;
+        }
+
+        const bookingOfTheMonth = await dataSource.getRepository('CourseBooking').
+        createQueryBuilder('cb').
+        innerJoin('cb.course', 'course').
+        where('cb.created_at >= :start', { start: new Date(`${month} 1, ${year}`).toISOString() }).
+        andWhere('cb.created_at <= :end', { end: new Date(`${month} ${end}, ${year}`).toISOString() }).
+        andWhere('cb.cancelled_at = NULL').
+        andWhere('course.user_id = :user_id', { user_id }).
+        getMany()
+
+        console.log('bookingOfTheMonth', bookingOfTheMonth)
+        
+
+        const packages = await dataSource.getRepository('CreditPackage').
+        createQueryBuilder('cp').
+        getMany()
+
+        console.log('packages', packages.length)
+
+        const totalPrice = packages.reduce((pre, cur) => pre + cur.price, 0)
+
+        console.log('totalPrice', totalPrice)
+
+        const avgPrice = totalPrice / packages.length
+
+        console.log('avgPrice', avgPrice)
+
+        const revenue = Math.floor(bookingOfTheMonth * avgPrice)
+
+        const participants = []
+
+        for(let i=0; i < bookingOfTheMonth.length; i++){
+            const user = bookingOfTheMonth[i].user_id
+            if(participants.find(p => p === user)){
+                continue
+            }else{
+                participants.push(user)
+            }
+        }
+
+        return {
+            status: 'success',
+            data: {
+                total: {
+                    revenue,
+                    participants: participants.length,
+                    course_count: bookingOfTheMonth.length
+                }
+            }
+        }
     }
 }
 

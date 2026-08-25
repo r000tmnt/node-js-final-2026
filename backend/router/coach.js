@@ -141,12 +141,25 @@ router.put('/', isAuth, isCoach, async(req, res, next) => {
     }
 })
 
-// router.get('/courses/:course_id', isCoach, async(req, res, next) => {
+router.get('/revenue', isAuth, isCoach, async(req, res, next) => {
+    try {
+        const { user } = req
+        const { month } = req.query
+        
+        const result = await coachController.getRevenue({ user_id: user.id, month })
 
-// })
+        if(result.status !== 'success'){
+            next(result)
+            return
+        }
 
-// router.put('/courses/:course_id', isCoach, async(req, res, next) => {
+        res.status(200).json(result)  
+    } catch (error) {
+        console.log(error)
+        next(appError(503, error))
+        return 
+    }
+})
 
-// })
 
 module.exports = router
