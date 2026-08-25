@@ -6,6 +6,8 @@ const Skill = require('../entities/Skill')
 const User = require('../entities/User')
 const CreditPackage = require('../entities/CreditPackage')
 const Course = require('../entities/Course')
+const CreditPurchased = require('../entities/CreditPurchased')
+const CourseBooking = require('../entities/CourseBooking')
 
 const dataSource = new DataSource({
   type: 'postgres',
@@ -22,7 +24,9 @@ const dataSource = new DataSource({
     Skill,
     User,
     CreditPackage,
-    Course
+    Course,
+    CreditPurchased,
+    CourseBooking
   ],
 })
 
